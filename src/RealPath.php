@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Laminas\Filter;
 
 use Laminas\Stdlib\ErrorHandler;
-use Traversable;
 
 use function array_pop;
 use function explode;
@@ -24,66 +23,20 @@ use const PHP_OS;
 
 /**
  * @psalm-type Options = array{
- *     exists: bool,
- *     ...
+ *     exists?: bool,
  * }
- * @template TOptions of Options
- * @extends AbstractFilter<TOptions>
+ * @implements FilterInterface<string|array<array-key, string|mixed>>
  */
-final class RealPath extends AbstractFilter
+final class RealPath implements FilterInterface
 {
-    /** @var TOptions $options */
-    protected $options = [
-        'exists' => true,
-    ];
+    private readonly bool $pathMustExist;
 
-    /**
-     * @param  bool|Traversable|Options $existsOrOptions Options to set
-     */
-    public function __construct($existsOrOptions = true)
+    /** @param Options $options */
+    public function __construct(array $options = [])
     {
-        if ($existsOrOptions !== null) {
-            if (! static::isOptions($existsOrOptions)) {
-                $this->setExists($existsOrOptions);
-            } else {
-                $this->setOptions($existsOrOptions);
-            }
-        }
+        $this->pathMustExist = $options['exists'] ?? true;
     }
 
-    /**
-     * Sets if the path has to exist
-     * TRUE when the path must exist
-     * FALSE when not existing paths can be given
-     *
-     * @param  bool $flag Path must exist
-     * @return self
-     */
-    public function setExists($flag = true)
-    {
-        $this->options['exists'] = (bool) $flag;
-        return $this;
-    }
-
-    /**
-     * Returns true if the filtered path must exist
-     *
-     * @return bool
-     */
-    public function getExists()
-    {
-        return $this->options['exists'];
-    }
-
-    /**
-     * Defined by Laminas\Filter\FilterInterface
-     *
-     * Returns realpath($value)
-     *
-     * If the value provided is non-scalar, the value will remain unfiltered
-     *
-     * @psalm-return ($value is string ? string : mixed)
-     */
     public function filter(mixed $value): mixed
     {
         if (! is_string($value)) {
@@ -91,7 +44,7 @@ final class RealPath extends AbstractFilter
         }
         $path = (string) $value;
 
-        if ($this->options['exists']) {
+        if ($this->pathMustExist) {
             return realpath($path);
         }
 
@@ -131,5 +84,10 @@ final class RealPath extends AbstractFilter
         }
 
         return $drive . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $stack);
+    }
+
+    public function __invoke(mixed $value): mixed
+    {
+        return $this->filter($value);
     }
 }

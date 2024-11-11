@@ -16,20 +16,17 @@ use const PHP_OS;
 
 class RealPathTest extends TestCase
 {
-    private RealPathFilter $filter;
-
-    public function setUp(): void
-    {
-        $this->filter = new RealPathFilter();
-    }
-
     /**
      * Ensures expected behavior for existing file
      */
     public function testFileExists(): void
     {
+        $filter = new RealPathFilter();
+
         $filename = __DIR__ . '/_files/file.1';
-        $result   = $this->filter->filter($filename);
+        $result   = $filter->filter($filename);
+
+        self::assertIsString($result);
         self::assertStringContainsString($filename, $result);
     }
 
@@ -38,28 +35,19 @@ class RealPathTest extends TestCase
      */
     public function testFileNonexistent(): void
     {
+        $filter = new RealPathFilter();
+
         $path = '/path/to/nonexistent';
         if (str_contains(PHP_OS, 'BSD')) {
-            self::assertSame($path, $this->filter->filter($path));
+            self::assertSame($path, $filter->filter($path));
         } else {
-            self::assertSame(false, $this->filter->filter($path));
+            self::assertSame(false, $filter->filter($path));
         }
-    }
-
-    public function testGetAndSetExistsParameter(): void
-    {
-        self::assertTrue($this->filter->getExists());
-        $this->filter->setExists(false);
-        self::assertFalse($this->filter->getExists());
-
-        $this->filter->setExists(['unknown']);
-        self::assertTrue($this->filter->getExists());
     }
 
     public function testNonExistentPath(): void
     {
-        $filter = $this->filter;
-        $filter->setExists(false);
+        $filter = new RealPathFilter(['exists' => false]);
 
         $path = __DIR__ . DIRECTORY_SEPARATOR . '_files';
         self::assertSame($path, $filter($path));

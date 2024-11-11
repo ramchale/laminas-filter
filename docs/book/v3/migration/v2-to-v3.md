@@ -131,6 +131,15 @@ Additionally, `$options['pattern']` _must_ be provided at construction time or a
 
 Exceptions for invalid or empty patterns are now thrown during construct rather than when the filter is invoked.
 
+#### `RealPath`
+
+The following methods have been removed:
+
+- `setExists`
+- `getExists`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#realPath).
+
 #### `SeparatorToCamelCase`
 
 The constructor now only accepts an associative array of [documented options](../word.md#separatorToCamelCase).
