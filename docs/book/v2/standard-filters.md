@@ -1643,9 +1643,8 @@ $filtered = $filter->filter($path);
 
 ### Non-Existing Paths
 
-Sometimes it is useful to get paths to files that do n0t exist; e.g., when you
-want to get the real path for a path you want to create. You can then either
-provide a `FALSE` `exists` value at initiation, or use `setExists()` to set it.
+Sometimes it is useful to get paths to files that do not exist; e.g., when you want to get the real path for a path you want to create.
+You can then either provide a `false` `exists` value at initiation, or use `setExists()` to set it.
 
 ```php
 $filter = new Laminas\Filter\RealPath(false);
